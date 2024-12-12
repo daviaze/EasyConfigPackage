@@ -43,7 +43,7 @@ public class AppConfig
 }
 
 // Lendo configurações de um arquivo JSON
-var config = ConfigManager.Read<AppConfig>("config.json");
+var config = Config<AppConfig>.Read("config.json");
 
 if (config != null)
 {
@@ -53,3 +53,12 @@ else
 {
     Console.WriteLine("Configuração não encontrada ou inválida.");
 }
+
+// Gravando configurações em um arquivo JSON
+AppConfig config = new(){
+    AppName = "Teste",
+    Version = 1
+};
+
+Config<AppConfig>.Save("config.json", config);
+
