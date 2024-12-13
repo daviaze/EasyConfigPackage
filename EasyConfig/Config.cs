@@ -4,6 +4,12 @@ namespace EasyConfig
 {
     public static class Config<T> where T : class
     {
+        /// <summary>
+        /// Read a file config
+        /// </summary>
+        /// <param name="path"></param>
+        /// <param name="validate"></param>
+        /// <returns>Return a config or null</returns>
         public static T? Read(string path, Predicate<T>? validate = null)
         {
             try
@@ -28,6 +34,11 @@ namespace EasyConfig
             }
         }
 
+        /// <summary>
+        /// Save a config
+        /// </summary>
+        /// <param name="path"></param>
+        /// <param name="config"></param>
         public static void Save(string path, T config)
         {
             try
