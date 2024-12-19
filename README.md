@@ -8,22 +8,46 @@ A **EasyConfig** é uma biblioteca simples para leitura e salvamento de configur
 
 ## Funcionalidades
 
-### 1. `Read<T>(string path, Predicate<T>? validate)`
+### 1. `Read<T>(string path, Predicate<T>? validate, string? encryptionKey = null)`
 - **Descrição**: Lê as configurações de um arquivo JSON localizado no caminho especificado.
 - **Parâmetros**:
   - `path` (string): O caminho do arquivo que contém as configurações em formato JSON.
   - `validate` (opcional): Um predicado (`Predicate<T>`) que define as condições que o objeto desserializado deve atender. Se a validação falhar, uma exceção `ArgumentException` será lançada.
+  - `encryptionKey` (opcional): Especifica uma chave usada para descriptografar o arquivo de configuração durante a leitura. Este parâmetro é necessário apenas se o arquivo estiver criptografado, e precisa ser a mesma chave utilizada na criptografia.
 - **Retorno**:
   - Retorna um objeto do tipo genérico `T`, contendo os dados deserializados.
   - Caso o arquivo não exista ou o conteúdo esteja inválido, retorna `null`.
 - **Restrições**:
   - O tipo `T` deve ser uma classe (`where T : class`).
 
-### 2. `Save<T>(string path, T config)`
+### 2. `ReadAsync<T>(string path, Predicate<T>? validate, string? encryptionKey = null)`
+- **Descrição**: Lê assincronamente as configurações de um arquivo JSON localizado no caminho especificado.
+- **Parâmetros**:
+  - `path` (string): O caminho do arquivo que contém as configurações em formato JSON.
+  - `validate` (opcional): Um predicado (`Predicate<T>`) que define as condições que o objeto desserializado deve atender. Se a validação falhar, uma exceção `ArgumentException` será lançada.
+  - `encryptionKey` (opcional): Especifica uma chave usada para descriptografar o arquivo de configuração durante a leitura. Este parâmetro é necessário apenas se o arquivo estiver criptografado, e precisa ser a mesma chave utilizada na criptografia.
+- **Retorno**:
+  - Retorna um objeto do tipo genérico `T`, contendo os dados deserializados.
+  - Caso o arquivo não exista ou o conteúdo esteja inválido, retorna `null`.
+- **Restrições**:
+  - O tipo `T` deve ser uma classe (`where T : class`).
+
+### 3. `Save<T>(string path, T config, string? encryptionKey = null)`
 - **Descrição**: Salva as configurações fornecidas em um arquivo JSON no caminho especificado.
 - **Parâmetros**:
   - `config` (T): O objeto que será serializado e salvo no arquivo.
   - `path` (string): O caminho onde o arquivo JSON será salvo.
+  - `encryptionKey` (opcional) Especifica uma chave usada para criptografar o arquivo de configuração durante a escrita. Este parâmetro é necessário apenas se deseja criptografar os dados que serão salvos no arquivo.
+- **Comportamento**:
+  - Cria o arquivo JSON se ele não existir.
+  - Sobrescreve o conteúdo do arquivo, se ele já existir.
+
+### 4. `SaveAsync<T>(string path, T config, string? encryptionKey = null)`
+- **Descrição**: Salva assincronamente as configurações fornecidas em um arquivo JSON no caminho especificado.
+- **Parâmetros**:
+  - `config` (T): O objeto que será serializado e salvo no arquivo.
+  - `path` (string): O caminho onde o arquivo JSON será salvo.
+  - `encryptionKey` (opcional) Especifica uma chave usada para criptografar o arquivo de configuração durante a escrita. Este parâmetro é necessário apenas se deseja criptografar os dados que serão salvos no arquivo.
 - **Comportamento**:
   - Cria o arquivo JSON se ele não existir.
   - Sobrescreve o conteúdo do arquivo, se ele já existir.
