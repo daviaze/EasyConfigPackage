@@ -6,7 +6,7 @@
     <Nullable>enable</Nullable>
     <GeneratePackageOnBuild>True</GeneratePackageOnBuild>
     <Authors>DaviUtils</Authors>
-    <Version>1.0.8</Version>
+    <Version>1.0.9</Version>
     <Title>EasyConfig</Title>
     <Description>The easy solution to read and save local configurations in your application.</Description>
     <PackageLicenseFile>LICENSE.md</PackageLicenseFile>

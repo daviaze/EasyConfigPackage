@@ -1,5 +1,7 @@
 ﻿using System.Security.Cryptography;
+using System.Text.Encodings.Web;
 using System.Text.Json;
+using System.Text.Json.Serialization.Metadata;
 
 namespace EasyConfig
 {
@@ -24,36 +26,29 @@ namespace EasyConfig
         /// <exception cref="CryptographicException"></exception>
         public static T? Read(string path, Predicate<T>? validate = null, string? encryptionKey = null)
         {
-            try
+            if (File.Exists(path))
             {
-                if (File.Exists(path))
+                var json = string.Empty;
+                if (!string.IsNullOrEmpty(encryptionKey))
                 {
-                    var json = string.Empty;
-                    if (!string.IsNullOrEmpty(encryptionKey))
-                    {
-                        json = Encryption.Decrypt(File.ReadAllText(path), encryptionKey);
-                    }
-                    else
-                    {
-                        json = File.ReadAllText(path);
-                    }
-
-                    T? config = JsonSerializer.Deserialize<T>(json);
-
-                    if (config is not null && validate is not null && !validate(config))
-                    {
-                        throw new ArgumentException("Invalid config");
-                    }
-
-                    return config;
+                    json = Encryption.Decrypt(File.ReadAllText(path), encryptionKey);
+                }
+                else
+                {
+                    json = File.ReadAllText(path);
                 }
 
-                return default;
+                T? config = JsonSerializer.Deserialize<T>(json);
+
+                if (config is not null && validate is not null && !validate(config))
+                {
+                    throw new ArgumentException("Invalid config");
+                }
+
+                return config;
             }
-            catch
-            {
-                throw;
-            }
+
+            return default;
         }
 
         /// <summary>
@@ -75,36 +70,29 @@ namespace EasyConfig
         /// <exception cref="CryptographicException"></exception>
         public static async Task<T?> ReadAsync(string path, Predicate<T>? validate = null, string? encryptionKey = null)
         {
-            try
+            if (File.Exists(path))
             {
-                if (File.Exists(path))
+                var json = string.Empty;
+                var stream  = File.OpenRead(path);
+
+                json = await JsonSerializer.DeserializeAsync<string>(stream);
+
+                if (!string.IsNullOrEmpty(encryptionKey))
                 {
-                    var json = string.Empty;
-                    if (!string.IsNullOrEmpty(encryptionKey))
-                    {
-                        json = Encryption.Decrypt(await File.ReadAllTextAsync(path), encryptionKey);
-                    }
-                    else
-                    {
-                        json = await File.ReadAllTextAsync(path);
-                    }
-
-                    T? config = JsonSerializer.Deserialize<T>(json);
-
-                    if (config is not null && validate is not null && !validate(config))
-                    {
-                        throw new ArgumentException("Invalid config");
-                    }
-
-                    return config;
+                    json = Encryption.Decrypt(json!, encryptionKey);
                 }
 
-                return default;
+                T? config = JsonSerializer.Deserialize<T>(json!);
+
+                if (config is not null && validate is not null && !validate(config))
+                {
+                    throw new ArgumentException("Invalid config");
+                }
+
+                return config;
             }
-            catch
-            {
-                throw;
-            }
+
+            return default;
         }
 
         /// <summary>
@@ -126,25 +114,24 @@ namespace EasyConfig
         /// <exception cref="CryptographicException"></exception>
         public static void Save(string path, T config, string? encryptionKey = null)
         {
-            try
-            {
-                var json = string.Empty;
+            var json = string.Empty;
 
-                if (!string.IsNullOrEmpty(encryptionKey))
-                {
-                    json = Encryption.Encrypt(JsonSerializer.Serialize(config), encryptionKey);
-                }
-                else
-                {
-                    json = JsonSerializer.Serialize(config);
-                }
-
-                File.WriteAllText(path, json);
-            }
-            catch
+            var options = new JsonSerializerOptions
             {
-                throw;
+                Encoder = JavaScriptEncoder.UnsafeRelaxedJsonEscaping,
+                WriteIndented = true
+            };
+
+            if (!string.IsNullOrEmpty(encryptionKey))
+            {
+                json = Encryption.Encrypt(JsonSerializer.Serialize(config, options), encryptionKey);
             }
+            else
+            {
+                json = JsonSerializer.Serialize(config, options);
+            }
+
+            File.WriteAllText(path, json);
         }
 
         /// <summary>
@@ -166,25 +153,24 @@ namespace EasyConfig
         /// <exception cref="CryptographicException"></exception>
         public static async Task SaveAsync(string path, T config, string? encryptionKey = null)
         {
-            try
-            {
-                var json = string.Empty;
+            var json = string.Empty;
 
-                if (!string.IsNullOrEmpty(encryptionKey))
-                {
-                    json = Encryption.Encrypt(JsonSerializer.Serialize(config), encryptionKey);
-                }
-                else
-                {
-                    json = JsonSerializer.Serialize(config);
-                }
-
-                await File.WriteAllTextAsync(path, json);
-            }
-            catch
+            var options = new JsonSerializerOptions
             {
-                throw;
+                Encoder = JavaScriptEncoder.UnsafeRelaxedJsonEscaping,
+                WriteIndented = true
+            };
+
+            if (!string.IsNullOrEmpty(encryptionKey))
+            {
+                json = Encryption.Encrypt(JsonSerializer.Serialize(config, options), encryptionKey);
             }
+            else
+            {
+                json = JsonSerializer.Serialize(config, options);
+            }
+
+            await File.WriteAllTextAsync(path, json);
         }
     }
 }
